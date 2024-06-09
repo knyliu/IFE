@@ -1,0 +1,135 @@
+[scene.library]
+name: "圖書館"
+background: "assets/scene/library.jpg"
+
+[scene.secret-garden]
+name: "秘密花園"
+background: "assets/scene/garden.jpg"
+
+[scene.treasure-vault]
+name: "地下寶庫"
+background: "assets/scene/vault.jpg"
+
+[character.explorer]
+name: "探險家"
+avatar: "assets/character/explorer/avatar.jpg"
+tachie: "assets/character/explorer/tachie.jpg"
+
+[character.iris]
+name: "守護者艾瑞斯"
+avatar: "assets/character/iris/avatar.jpg"
+tachie: "assets/character/iris/tachie.jpg"
+
+[character.lena]
+name: "守護者萊娜"
+avatar: "assets/character/lena/avatar.jpg"
+tachie: "assets/character/lena/tachie.jpg"
+
+[item.ancient-key]
+name: "古老的鑰匙"
+description: "開啟地下寶庫的鑰匙"
+icon: "assets/item/key/icon.jpg"
+
+[item.decryption-book]
+name: "解密書"
+description: "含有解開秘密的線索"
+icon: "assets/item/book/icon.jpg"
+
+[event.start]
+scene: "library"
+dialogue: "initial_meeting"
+
+[dialogue.initial_meeting]
+character: "explorer"
+text: "我來到了古老的圖書館，這裡隱藏著通往寶藏的秘密。"
+options:
+  - text: "尋找艾瑞斯並詢問關於寶藏的信息。"
+    next: "iris_intro"
+  - text: "在圖書館四處探索。"
+    next: "explore_library"
+
+[dialogue.iris_intro]
+character: "iris"
+text: "哦，你是新來的探險家嗎？你尋找的寶藏充滿了謎團和危險。"
+options:
+  - text: "我準備好了，請告訴我更多。"
+    next: "iris_help"
+  - text: "我只是來看看。"
+    next: "explore_library"
+
+[dialogue.iris_help]
+character: "iris"
+text: "好吧，如果你真的準備好了，你需要先找到古老的鑰匙。它被藏在秘密花園裡。"
+options:
+  - text: "前往秘密花園。"
+    event: "change_scene_to_garden"
+
+[dialogue.explore_library]
+character: "explorer"
+text: "圖書館裡充滿了古老的書籍和地圖。也許這裡有些有用的線索。"
+options:
+  - text: "繼續尋找線索。"
+    next: "find_book"
+  - text: "離開圖書館。"
+    event: "change_scene_to_garden"
+
+[event.change_scene_to_garden]
+scene: "secret-garden"
+dialogue: "garden_arrival"
+
+[dialogue.garden_arrival]
+character: "explorer"
+text: "秘密花園是個迷人的地方，充滿了奇異的花草和迷宮般的小徑。"
+options:
+  - text: "尋找古老的鑰匙。"
+    next: "find_key"
+  - text: "探索花園。"
+    next: "explore_garden"
+
+[dialogue.find_key]
+character: "explorer"
+text: "在一個隱蔽的噴泉後面，我找到了古老的鑰匙。"
+options:
+  - text: "拿起鑰匙。"
+    inventory_add: "ancient-key"
+    event: "change_scene_to_vault"
+
+[dialogue.explore_garden]
+character: "explorer"
+text: "花園裡的每一個轉角都充滿了神秘。突然，一位名叫萊娜的守護者出現了。"
+options:
+  - text: "與萊娜交談。"
+    next: "lena_intro"
+  - text: "繼續探索花園。"
+    next: "explore_garden_more"
+
+[event.change_scene_to_vault]
+scene: "treasure-vault"
+dialogue: "vault_entry"
+
+[dialogue.vault_entry]
+character: "explorer"
+text: "我用古老的鑰匙開啟了地下寶庫的大門，裡面光芒四射，顯示出無數的寶石和金幣。"
+options:
+  - text: "搜集寶藏。"
+    next: "collect_treasure"
+  - text: "探索更多。"
+    next: "explore_vault"
+
+[dialogue.collect_treasure]
+character: "explorer"
+text: "我搜集了一些寶藏，準備帶回家。突然，地下寶庫的門關閉了！"
+options:
+  - text: "尋找出路。"
+    next: "find_exit"
+
+[dialogue.find_exit]
+character: "explorer"
+text: "在一番尋找後，我找到了一個隱藏的通道，它帶我安全地返回了城堡外面。"
+options:
+  - text: "結束探險，帶著寶藏回家。"
+    next: "end"
+
+[dialogue.end]
+character: "explorer"
+text: "這次探險雖然充滿了未知和危險，但我成功地解開了謎題並帶回了寶藏。"
