@@ -23,27 +23,27 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    // 創建渲染器
+    
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == NULL) {
         printf("Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
         return -1;
     }
 
-    // 初始化SDL_image
+ 
     int imgFlags = IMG_INIT_JPG | IMG_INIT_PNG;
     if (!(IMG_Init(imgFlags) & imgFlags)) {
         printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
         return -1;
     }
 
-    // 初始化SDL_ttf
+   
     if (TTF_Init() == -1) {
         printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
         return -1;
     }
 
-    // 加載背景圖片
+   
     SDL_Surface* bgSurface = IMG_Load("library.jpg");
     if (bgSurface == NULL) {
         printf("Unable to load image %s! SDL_image Error: %s\n", "library.jpg", IMG_GetError());
@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
     SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
     SDL_FreeSurface(bgSurface);
 
-    // 加載人物圖片
+
     SDL_Surface* playerSurface = IMG_Load("player_happy.png");
     if (playerSurface == NULL) {
         printf("Unable to load image %s! SDL_image Error: %s\n", "player_happy.png", IMG_GetError());
@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
     // 設定顏色
     SDL_Color textColor = {255, 255, 255, 255};
 
-    // 創建文字表面
+    
     SDL_Surface* textSurface = TTF_RenderUTF8_Solid(font, "Hello", textColor);
     if (textSurface == NULL) {
         printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
@@ -81,22 +81,22 @@ int main(int argc, char* argv[]) {
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
     SDL_FreeSurface(textSurface);
 
-    // 主要循環
+    
     bool quit = false;
     SDL_Event e;
 
     while (!quit) {
-        // 處理事件
+        
         while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_QUIT) {
                 quit = true;
             }
         }
 
-        // 清屏
+       
         SDL_RenderClear(renderer);
 
-        // 渲染背景
+        
         SDL_RenderCopy(renderer, bgTexture, NULL, NULL);
 
         // 渲染半透明黑色窗口
@@ -105,19 +105,19 @@ int main(int argc, char* argv[]) {
         SDL_Rect blackRect = { 0, SCREEN_HEIGHT - 200, SCREEN_WIDTH, 200 };
         SDL_RenderFillRect(renderer, &blackRect);
 
-        // 渲染人物
+        
         SDL_Rect playerRect = { 100, SCREEN_HEIGHT - 200, 100, 150 };  // 調整人物位置
         SDL_RenderCopy(renderer, playerTexture, NULL, &playerRect);
 
-        // 渲染文字
+        
         SDL_Rect textRect = { 200, SCREEN_HEIGHT - 150, 100, 50 };  // 調整文字位置和大小
         SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
 
-        // 更新屏幕
+        
         SDL_RenderPresent(renderer);
     }
 
-    // 清理資源
+    
     SDL_DestroyTexture(bgTexture);
     SDL_DestroyTexture(playerTexture);
     SDL_DestroyTexture(textTexture);
