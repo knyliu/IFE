@@ -5,18 +5,18 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-// 定義屏幕寬高
+
 const int SCREEN_WIDTH = 1000;
 const int SCREEN_HEIGHT = 600;
 
 int main(int argc, char* argv[]) {
-    // 初始化SDL
+    
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return -1;
     }
 
-    // 創建窗口
+   
     SDL_Window* window = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (window == NULL) {
         printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -61,14 +61,14 @@ int main(int argc, char* argv[]) {
     SDL_Texture* playerTexture = SDL_CreateTextureFromSurface(renderer, playerSurface);
     SDL_FreeSurface(playerSurface);
 
-    // 加載字型
+    
     TTF_Font* font = TTF_OpenFont("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 28);
     if (font == NULL) {
         printf("Failed to load font! SDL_ttf Error: %s\n", TTF_GetError());
         return -1;
     }
 
-    // 設定顏色
+    
     SDL_Color textColor = {255, 255, 255, 255};
 
     
@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
         
         SDL_RenderCopy(renderer, bgTexture, NULL, NULL);
 
-        // 渲染半透明黑色窗口
+        // 半透明黑色窗口
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128); // 黑色，50% 透明度
         SDL_Rect blackRect = { 0, SCREEN_HEIGHT - 200, SCREEN_WIDTH, 200 };
