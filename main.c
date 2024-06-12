@@ -1,138 +1,157 @@
-#include <event2/event.h>
-#include <event2/http.h>
-#include <event2/buffer.h>
-#include <event2/util.h>
-#include <event2/keyvalq_struct.h>
-#include <stdlib.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdio.h>
-#include <string.h>
-#include <curl/curl.h>
+#include <stdbool.h>
+#include <stdlib.h>
 
-struct MemoryStruct {
-    char *memory;
-    size_t size;
-};
+const int SCREEN_WIDTH = 500;
+const int SCREEN_HEIGHT = 500;
 
-static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
-    size_t realsize = size * nmemb;
-    struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+SDL_Rect button1Rect;
+SDL_Rect button2Rect;
 
-    char *ptr = realloc(mem->memory, mem->size + realsize + 1);
-    if(ptr == NULL) {
-        printf("not enough memory (realloc returned NULL)\n");
-        return 0;
-    }
+const char* messages[] = {"我用鑰匙打開了地下寶庫的大門。",
+                          "裡面光芒四射，有各種寶石和錢幣。"};
+int currentMessageIndex = 0;
 
-    mem->memory = ptr;
-    memcpy(&(mem->memory[mem->size]), contents, realsize);
-    mem->size += realsize;
-    mem->memory[mem->size] = 0;
-
-    return realsize;
+bool isMouseOverButton(int x, int y, SDL_Rect buttonRect) {
+    return x >= buttonRect.x && x <= buttonRect.x + buttonRect.w &&
+           y >= buttonRect.y && y <= buttonRect.y + buttonRect.h;
 }
 
-char *perform_query(const char *data) {
-    CURL *curl;
-    CURLcode res;
-    struct MemoryStruct chunk;
+SDL_Texture* renderText(SDL_Renderer* renderer, const char* message, TTF_Font* font, SDL_Color color) {
+    SDL_Surface* textSurface = TTF_RenderUTF8_Solid(font, message, color);
+    if (textSurface == NULL) {
+        printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
+        return NULL;
+    }
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    SDL_FreeSurface(textSurface);
+    return textTexture;
+}
 
-    chunk.memory = malloc(1);
-    chunk.size = 0;
+int main(int argc, char* argv[]) {
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+        return -1;
+    }
 
-    curl_global_init(CURL_GLOBAL_ALL);
+    SDL_Window* window = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    if (window == NULL) {
+        printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
+        return -1;
+    }
 
-    curl = curl_easy_init();
-    if(curl) {
-        struct curl_slist *headers = NULL;
-        headers = curl_slist_append(headers, "Authorization: Bearer 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");
-        headers = curl_slist_append(headers, "Content-Type: application/json");
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if (renderer == NULL) {
+        printf("Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
+        return -1;
+    }
 
-        curl_easy_setopt(curl, CURLOPT_URL, "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.3");
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, data);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    
+    int imgFlags = IMG_INIT_JPG | IMG_INIT_PNG;
+    if (!(IMG_Init(imgFlags) & imgFlags)) {
+        printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
+        return -1;
+    }
 
-        res = curl_easy_perform(curl);
+    if (TTF_Init() == -1) {
+        printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
+        return -1;
+    }
 
-        if(res != CURLE_OK) {
-            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-        } else {
-            printf("%lu bytes retrieved\n", (unsigned long)chunk.size);
+    SDL_Surface* bgSurface = IMG_Load("secret.jpg");
+    if (bgSurface == NULL) {
+        printf("Unable to load image %s! SDL_image Error: %s\n", "secret.jpg", IMG_GetError());
+        return -1;
+    }
+    SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
+    SDL_FreeSurface(bgSurface);
+
+    SDL_Surface* playerSurface = IMG_Load("player_happy.png");
+    if (playerSurface == NULL) {
+        printf("Unable to load image %s! SDL_image Error: %s\n", "player_happy.png", IMG_GetError());
+        return -1;
+    }
+    SDL_Texture* playerTexture = SDL_CreateTextureFromSurface(renderer, playerSurface);
+    SDL_FreeSurface(playerSurface);
+
+    // 使用相对路径加载字体文件
+    TTF_Font* font = TTF_OpenFont("NotoSansTC-Regular.ttf", 28);
+    if (font == NULL) {
+        printf("Failed to load font! SDL_ttf Error: %s\n", TTF_GetError());
+        return -1;
+    }
+
+    SDL_Color textColor = {255, 255, 255, 255};
+
+    SDL_Texture* textTexture = renderText(renderer, messages[currentMessageIndex], font, textColor);
+    if (textTexture == NULL) {
+        return -1;
+    }
+
+    SDL_Texture* button1Texture = renderText(renderer, "GO!", font, textColor);
+    SDL_Texture* button2Texture = renderText(renderer, "Leave.", font, textColor);
+
+    SDL_Rect button1Rect = {SCREEN_WIDTH - 270, SCREEN_HEIGHT - 70, 60, 30};
+    SDL_Rect button2Rect = {SCREEN_WIDTH - 200, SCREEN_HEIGHT - 70, 60, 30};
+
+    bool quit = false;
+    SDL_Event e;
+
+    while (!quit) {
+        while (SDL_PollEvent(&e) != 0) {
+            if (e.type == SDL_QUIT) {
+                quit = true;
+            } else if (e.type == SDL_MOUSEBUTTONDOWN) {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                if (isMouseOverButton(x, y, button1Rect) || isMouseOverButton(x, y, button2Rect)) {
+                    currentMessageIndex = (currentMessageIndex + 1) % 2;
+
+                    SDL_DestroyTexture(textTexture);
+                    textTexture = renderText(renderer, messages[currentMessageIndex], font, textColor);
+                    if (textTexture == NULL) {
+                        return -1;
+                    }
+                }
+            }
         }
 
-        curl_easy_cleanup(curl);
-        curl_slist_free_all(headers);
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, bgTexture, NULL, NULL);
+
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
+        SDL_Rect blackRect = {0, SCREEN_HEIGHT - 200, SCREEN_WIDTH, 200};
+        SDL_RenderFillRect(renderer, &blackRect);
+
+        SDL_Rect playerRect = {60, SCREEN_HEIGHT - 200, 100, 150};
+        SDL_RenderCopy(renderer, playerTexture, NULL, &playerRect);
+
+        SDL_Rect textRect = {200, SCREEN_HEIGHT - 150, 200, 60};
+        SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+
+        SDL_RenderCopy(renderer, button1Texture, NULL, &button1Rect);
+        SDL_RenderCopy(renderer, button2Texture, NULL, &button2Rect);
+
+        SDL_RenderPresent(renderer);
     }
 
-    curl_global_cleanup();
+    SDL_DestroyTexture(bgTexture);
+    SDL_DestroyTexture(playerTexture);
+    SDL_DestroyTexture(button1Texture);
+    SDL_DestroyTexture(button2Texture);
+    SDL_DestroyTexture(textTexture);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    TTF_CloseFont(font);
+    TTF_Quit();
+    IMG_Quit();
+    SDL_Quit();
 
-    return chunk.memory;
-}
-
-void handle_request(struct evhttp_request *req, void *arg) {
-    struct evbuffer *evb = evbuffer_new();
-
-    struct evhttp_uri *decoded = evhttp_uri_parse(evhttp_request_get_uri(req));
-    const char *query = evhttp_uri_get_query(decoded);
-
-    struct evkeyvalq params;
-    evhttp_parse_query_str(query, &params);
-    const char *text_input = evhttp_find_header(&params, "text_input");
-
-    if (text_input == NULL) {
-        evhttp_add_header(evhttp_request_get_output_headers(req), "Access-Control-Allow-Origin", "*");
-        evbuffer_add_printf(evb, "Missing parameters\n");
-        evhttp_send_reply(req, HTTP_BADREQUEST, "Bad Request", evb);
-        evbuffer_free(evb);
-        return;
-    }
-
-    char data[2048];
-    snprintf(data, sizeof(data), "{\"inputs\": \"%s\"}", text_input);
-    char *response_text = perform_query(data);
-
-    // Escape special characters in response_text
-    char *escaped_response_text = malloc(strlen(response_text) * 2 + 1); // Allocate enough space
-    char *src = response_text;
-    char *dest = escaped_response_text;
-    while (*src) {
-        if (*src == '"' || *src == '\\') {
-            *dest++ = '\\';
-        }
-        *dest++ = *src++;
-    }
-    *dest = '\0';
-
-    // Print response_text for debugging
-    printf("Response text: %s\n", response_text);
-
-    char json_response[2048];
-    snprintf(json_response, sizeof(json_response), "{\"response\": \"%s\"}", escaped_response_text);
-
-    // Print json_response for debugging
-    printf("JSON Response: %s\n", json_response);
-
-    evhttp_add_header(evhttp_request_get_output_headers(req), "Access-Control-Allow-Origin", "*");
-    evhttp_add_header(evhttp_request_get_output_headers(req), "Content-Type", "application/json");
-
-    evbuffer_add_printf(evb, "%s", json_response);
-
-    free(response_text);
-    free(escaped_response_text);
-    evhttp_send_reply(req, HTTP_OK, "OK", evb);
-    evbuffer_free(evb);
-}
-
-int main() {
-    struct event_base *base = event_base_new();
-    struct evhttp *http = evhttp_new(base);
-    evhttp_bind_socket(http, "0.0.0.0", 8080);
-    evhttp_set_gencb(http, handle_request, NULL);
-
-    event_base_dispatch(base);
-
-    evhttp_free(http);
-    event_base_free(base);
     return 0;
 }
+
