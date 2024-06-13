@@ -1,5 +1,8 @@
 # IFE
 
+## For gui_2games.c
+```gcc -o gui gui.c -lSDL2 -lSDL2_image -lSDL2_ttf -lcurl -lcjson```
+
 ## Environment
 * curl, libevent
   * We assume you already had libcurl
