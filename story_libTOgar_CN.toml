@@ -1,37 +1,37 @@
 [scene.library]
-name = "圖書館"
+name = "library"
 background = "library.jpg"
 
 [scene.secret-garden]
-name = "秘密花園"
+name = "secret-garden"
 background = "garden.jpg"
 
 [scene.treasure-vault]
-name = "地下寶庫"
+name = "vault"
 background = "vault.jpg"
 
 [character.explorer]
-name = "探險家"
+name = "explorer"
 avatar = "player_happy.png"
 tachie = "player_terrified.png"
 
 [character.iris]
-name = "守護者艾瑞斯"
+name = "iris"
 avatar = "iris.png"
 tachie = "iris.png"
 
 [character.lena]
-name = "守護者萊娜"
+name = "lena"
 avatar = "girl.png"
 tachie = "girl.png"
 
 [item.ancient-key]
-name = "古老的鑰匙"
+name = "ancient-key"
 description = "開啟地下寶庫的鑰匙"
 icon = "key.png"
 
 [item.decryption-book]
-name = "解密書"
+name = "decryption-book"
 description = "含有解開秘密的線索"
 icon = "book.png"
 
@@ -41,10 +41,27 @@ dialogue = "initial_meeting"
 
 [dialogue.initial_meeting]
 character = "explorer"
-text = "這裡就是傳說中古老的圖書館嘛!，聽說這裡隱藏著通往寶藏所在處的秘密，我一定要解開謎題帶著寶物回家! 咦? 那裏有個人，難道就是傳說豬的館長艾瑞斯嗎?"
+text = "這裡就是傳說中的圖書館! 聽說這隱藏著通往寶藏所在處的秘密，我一定要解開謎題帶著寶物回家!"
+options = [
+  { text = "咦? 那裏有個人", next = "find_iris" },
+  { text = "在圖書館四處探索", next = "explore_library" }
+]
+
+
+[dialogue.find_iris]
+character = "explorer"
+text = "難道就是傳說中的館長艾瑞斯嗎?"
 options = [
   { text = "尋找艾瑞斯並詢問關於寶藏的信息", next = "iris_intro" },
   { text = "在圖書館四處探索", next = "explore_library" }
+]
+
+[dialogue.explore_library]
+character = "explorer"
+text = "這裡被整理得很乾淨，想必一定是館長艾瑞斯的用心吧！"
+options = [
+  { text = "回頭去找艾瑞斯問問看吧", next = "iris_help" },
+  { text = "我還是比較相信我自己！", next = "explore_library_more" }
 ]
 
 [dialogue.iris_intro]
@@ -67,7 +84,7 @@ options = [
 character = "explorer"
 text = "這裡有一本看起來分常神秘的古書籍!又藏在圖書館深處，想必它正是我要找的解密書"
 options = [
-  { text = "拿起解密書", inventory_add = "decryption-book", next = "return_to_iris" }
+  { text = "拿起解密書！", inventory_add = "decryption-book", next = "return_to_iris" }
 ]
 
 [dialogue.return_to_iris]
