@@ -10,12 +10,7 @@
 const int SCREEN_WIDTH = 1000;
 const int SCREEN_HEIGHT = 600;
 
-#define SCALE 1
-
-typedef struct {
-    char scene_name[256];
-    char background[256];
-} Scene;
+#define SCALE 0.75
 
 typedef struct {
     char label[256];       // 對話標籤
@@ -23,8 +18,7 @@ typedef struct {
     char text[256];        // 對話文字
     char options[2][256];  // 兩個選項文字
     char next[2][256];     // 兩個選項對應的下一個對話標籤
-    char scene[256];       // 當前場景
-    char event[256];       // 事件
+    char background[256];  // 背景圖片
 } Dialogue;
 
 typedef struct {
@@ -32,20 +26,18 @@ typedef struct {
     char avatar[256];      // 人物圖片
 } Character;
 
-Scene scenes[10];
 Dialogue dialogues[20];
 Character characters[10];
 int currentDialogueIndex = 0;
 
-void loadScenesAndDialogues(const char* filename);
+void loadDialoguesAndCharacters(const char* filename);
 int findDialogueIndex(const char* dialogueLabel);
 int findCharacterIndex(const char* characterName);
 SDL_Texture* renderText(SDL_Renderer* renderer, const char* message, TTF_Font* font, SDL_Color color);
 void updateScene(SDL_Renderer* renderer, SDL_Texture** bgTexture, SDL_Texture** characterTexture, TTF_Font* font, SDL_Color textColor, SDL_Texture** textTexture, SDL_Texture** button1Texture, SDL_Texture** button2Texture);
 bool isMouseOverButton(int x, int y, SDL_Rect buttonRect);
-void handleEvent(SDL_Renderer* renderer, SDL_Texture** bgTexture, SDL_Texture** characterTexture, TTF_Font* font, SDL_Color textColor, SDL_Texture** textTexture, SDL_Texture** button1Texture, SDL_Texture** button2Texture, const char* event);
 
-void loadScenesAndDialogues(const char* filename) {
+void loadDialoguesAndCharacters(const char* filename) {
     FILE* fp;
     char errbuf[200];
     toml_table_t* conf;
@@ -64,37 +56,18 @@ void loadScenesAndDialogues(const char* filename) {
         return;
     }
 
-    toml_table_t* scene_table = toml_table_in(conf, "scene");
     toml_table_t* dialogue_table = toml_table_in(conf, "dialogue");
     toml_table_t* character_table = toml_table_in(conf, "character");
 
-    // Load scenes
+    // Load dialogues
     int i = 0;
     const char* key;
     toml_table_t* tab;
-    while ((key = toml_key_in(scene_table, i++))) {
-        tab = toml_table_in(scene_table, key);
-        if (tab) {
-            char* scene_name = NULL;
-            char* background = NULL;
-            if (toml_rtos(toml_raw_in(tab, "name"), &scene_name) == 0 && scene_name) {
-                snprintf(scenes[i-1].scene_name, sizeof(scenes[i-1].scene_name), "%s", scene_name);
-                free(scene_name);
-            }
-            if (toml_rtos(toml_raw_in(tab, "background"), &background) == 0 && background) {
-                snprintf(scenes[i-1].background, sizeof(scenes[i-1].background), "%s", background);
-                free(background);
-            }
-        }
-    }
-
-    // Load dialogues
-    i = 0;
     while ((key = toml_key_in(dialogue_table, i++))) {
         tab = toml_table_in(dialogue_table, key);
         if (tab) {
             char* text = NULL;
-            char* scene = NULL;
+            char* background = NULL;
             snprintf(dialogues[i-1].label, sizeof(dialogues[i-1].label), "%s", key);
             if (toml_rtos(toml_raw_in(tab, "text"), &text) == 0 && text) {
                 snprintf(dialogues[i-1].text, sizeof(dialogues[i-1].text), "%s", text);
@@ -107,15 +80,9 @@ void loadScenesAndDialogues(const char* filename) {
                 free(character);
             }
 
-            if (toml_rtos(toml_raw_in(tab, "scene"), &scene) == 0 && scene) {
-                snprintf(dialogues[i-1].scene, sizeof(dialogues[i-1].scene), "%s", scene);
-                free(scene);
-            }
-
-            char* event = NULL;
-            if (toml_rtos(toml_raw_in(tab, "event"), &event) == 0 && event) {
-                snprintf(dialogues[i-1].event, sizeof(dialogues[i-1].event), "%s", event);
-                free(event);
+            if (toml_rtos(toml_raw_in(tab, "background"), &background) == 0 && background) {
+                snprintf(dialogues[i-1].background, sizeof(dialogues[i-1].background), "%s", background);
+                free(background);
             }
 
             toml_array_t* opt_array = toml_array_in(tab, "options");
@@ -192,27 +159,15 @@ SDL_Texture* renderText(SDL_Renderer* renderer, const char* message, TTF_Font* f
 void updateScene(SDL_Renderer* renderer, SDL_Texture** bgTexture, SDL_Texture** characterTexture, TTF_Font* font, SDL_Color textColor, SDL_Texture** textTexture, SDL_Texture** button1Texture, SDL_Texture** button2Texture) {
     printf("Updating scene to dialogue: %s\n", dialogues[currentDialogueIndex].label);
 
-    // 獲取當前場景背景
-    int sceneIndex = -1;
-    for (int i = 0; i < 10; i++) {
-        if (strcmp(scenes[i].scene_name, dialogues[currentDialogueIndex].scene) == 0) {
-            sceneIndex = i;
-            break;
-        }
-    }
-
-    if (sceneIndex != -1) {
-        printf("Loading background image: %s\n", scenes[sceneIndex].background);
-        SDL_Surface* newBgSurface = IMG_Load(scenes[sceneIndex].background);
-        if (newBgSurface) {
-            SDL_DestroyTexture(*bgTexture);
-            *bgTexture = SDL_CreateTextureFromSurface(renderer, newBgSurface);
-            SDL_FreeSurface(newBgSurface);
-        } else {
-            printf("Unable to load image %s! SDL_image Error: %s\n", scenes[sceneIndex].background, IMG_GetError());
-        }
+    // 獲取當前對話的背景
+    printf("Loading background image: %s\n", dialogues[currentDialogueIndex].background);
+    SDL_Surface* newBgSurface = IMG_Load(dialogues[currentDialogueIndex].background);
+    if (newBgSurface) {
+        SDL_DestroyTexture(*bgTexture);
+        *bgTexture = SDL_CreateTextureFromSurface(renderer, newBgSurface);
+        SDL_FreeSurface(newBgSurface);
     } else {
-        printf("Scene not found: %s\n", dialogues[currentDialogueIndex].scene);
+        printf("Unable to load image %s! SDL_image Error: %s\n", dialogues[currentDialogueIndex].background, IMG_GetError());
     }
 
     // 獲取說話者的圖片
@@ -262,20 +217,6 @@ bool isMouseOverButton(int x, int y, SDL_Rect buttonRect) {
            y >= buttonRect.y && y <= buttonRect.y + buttonRect.h;
 }
 
-void handleEvent(SDL_Renderer* renderer, SDL_Texture** bgTexture, SDL_Texture** characterTexture, TTF_Font* font, SDL_Color textColor, SDL_Texture** textTexture, SDL_Texture** button1Texture, SDL_Texture** button2Texture, const char* event) {
-    if (strcmp(event, "change_scene_to_garden") == 0) {
-        printf("Event: %s\n", event);
-        currentDialogueIndex = findDialogueIndex("garden_arrival");
-        updateScene(renderer, bgTexture, characterTexture, font, textColor, textTexture, button1Texture, button2Texture);
-    } else if (strcmp(event, "change_scene_to_vault") == 0) {
-        printf("Event: %s\n", event);
-        currentDialogueIndex = findDialogueIndex("vault_arrival");
-        updateScene(renderer, bgTexture, characterTexture, font, textColor, textTexture, button1Texture, button2Texture);
-    } else {
-        printf("Unknown event: %s\n", event);
-    }
-}
-
 int main(int argc, char* argv[]) {
     // 初始化SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -311,20 +252,33 @@ int main(int argc, char* argv[]) {
     }
 
     // 讀取劇本
-    loadScenesAndDialogues("money.toml");
+    loadDialoguesAndCharacters("story_CN2.toml");
+
+    // 確認初始背景圖片存在
+    printf("Initial dialogue background: %s\n", dialogues[currentDialogueIndex].background); // 添加這行來調試
+    if (strlen(dialogues[currentDialogueIndex].background) == 0) {
+        printf("Error: Initial background image not specified!\n");
+        return -1;
+    }
 
     // 加載初始背景圖片
-    printf("Loading initial background image: %s\n", scenes[0].background);
-    SDL_Surface* bgSurface = IMG_Load(scenes[0].background);
+    printf("Loading initial background image: %s\n", dialogues[currentDialogueIndex].background);
+    SDL_Surface* bgSurface = IMG_Load(dialogues[currentDialogueIndex].background);
     if (bgSurface == NULL) {
-        printf("Unable to load image %s! SDL_image Error: %s\n", scenes[0].background, IMG_GetError());
+        printf("Unable to load image %s! SDL_image Error: %s\n", dialogues[currentDialogueIndex].background, IMG_GetError());
         return -1;
     }
     SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
     SDL_FreeSurface(bgSurface);
 
     // 加載初始角色圖片
-    SDL_Surface* playerSurface = IMG_Load("player_happy.png"); // 預設角色圖片
+    int characterIndex = findCharacterIndex(dialogues[currentDialogueIndex].character);
+    SDL_Surface* playerSurface = NULL;
+    if (characterIndex != -1) {
+        playerSurface = IMG_Load(characters[characterIndex].avatar); // 預設角色圖片
+    } else {
+        playerSurface = IMG_Load("player_happy.png"); // 預設角色圖片
+    }
     if (playerSurface == NULL) {
         printf("Unable to load image %s! SDL_image Error: %s\n", "player_happy.png", IMG_GetError());
         return -1;
@@ -376,31 +330,23 @@ int main(int argc, char* argv[]) {
                 printf("Mouse Clicked at (%d, %d)\n", x, y); // 打印鼠標點擊位置
                 if (isMouseOverButton(x, y, button1Rect)) {
                     printf("Button 1 Clicked\n");
-                    if (strlen(dialogues[currentDialogueIndex].event) > 0) {
-                        handleEvent(renderer, &bgTexture, &characterTexture, font, textColor, &textTexture, &button1Texture, &button2Texture, dialogues[currentDialogueIndex].event);
+                    int nextDialogueIndex = findDialogueIndex(dialogues[currentDialogueIndex].next[0]);
+                    if (nextDialogueIndex != -1) {
+                        currentDialogueIndex = nextDialogueIndex;
+                        printf("Switching to dialogue: %s\n", dialogues[currentDialogueIndex].label);
+                        updateScene(renderer, &bgTexture, &characterTexture, font, textColor, &textTexture, &button1Texture, &button2Texture);
                     } else {
-                        int nextDialogueIndex = findDialogueIndex(dialogues[currentDialogueIndex].next[0]);
-                        if (nextDialogueIndex != -1) {
-                            currentDialogueIndex = nextDialogueIndex;
-                            printf("Switching to dialogue: %s\n", dialogues[currentDialogueIndex].label);
-                            updateScene(renderer, &bgTexture, &characterTexture, font, textColor, &textTexture, &button1Texture, &button2Texture);
-                        } else {
-                            printf("Next dialogue not found: %s\n", dialogues[currentDialogueIndex].next[0]);
-                        }
+                        printf("Next dialogue not found: %s\n", dialogues[currentDialogueIndex].next[0]);
                     }
                 } else if (isMouseOverButton(x, y, button2Rect)) {
                     printf("Button 2 Clicked\n");
-                    if (strlen(dialogues[currentDialogueIndex].event) > 0) {
-                        handleEvent(renderer, &bgTexture, &characterTexture, font, textColor, &textTexture, &button1Texture, &button2Texture, dialogues[currentDialogueIndex].event);
+                    int nextDialogueIndex = findDialogueIndex(dialogues[currentDialogueIndex].next[1]);
+                    if (nextDialogueIndex != -1) {
+                        currentDialogueIndex = nextDialogueIndex;
+                        printf("Switching to dialogue: %s\n", dialogues[currentDialogueIndex].label);
+                        updateScene(renderer, &bgTexture, &characterTexture, font, textColor, &textTexture, &button1Texture, &button2Texture);
                     } else {
-                        int nextDialogueIndex = findDialogueIndex(dialogues[currentDialogueIndex].next[1]);
-                        if (nextDialogueIndex != -1) {
-                            currentDialogueIndex = nextDialogueIndex;
-                            printf("Switching to dialogue: %s\n", dialogues[currentDialogueIndex].label);
-                            updateScene(renderer, &bgTexture, &characterTexture, font, textColor, &textTexture, &button1Texture, &button2Texture);
-                        } else {
-                            printf("Next dialogue not found: %s\n", dialogues[currentDialogueIndex].next[1]);
-                        }
+                        printf("Next dialogue not found: %s\n", dialogues[currentDialogueIndex].next[1]);
                     }
                 }
             }
