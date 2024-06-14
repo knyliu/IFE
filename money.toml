@@ -1,0 +1,119 @@
+[scene.library]
+name = "library"
+background = "library.jpg"
+
+[scene.secret-garden]
+name = "secret-garden"
+background = "garden.jpg"
+
+[scene.treasure-vault]
+name = "vault"
+background = "vault.jpg"
+
+[scene.secret2]
+name = "secret2"
+background = "secret2.jpg"
+
+[scene.home]
+name = "home"
+background = "home.jpg"
+
+[character.explorer]
+name = "explorer"
+avatar = "player_happy.png"
+
+[item.ancient-key]
+name = "ancient-key"
+description = "開啟地下寶庫的鑰匙"
+icon = "key.png"
+
+[event.to_vault]
+scene = "vault"
+dialogue = "to_vault_dialogue"
+
+[event.end1]
+scene = "library"
+dialogue = "end1_dialogue"
+
+[event.end2]
+scene = "home"
+dialogue = "end2_dialogue"
+
+[event.end3]
+scene = "secret-garden"
+dialogue = "end3_dialogue"
+
+[dialogue.to_vault_dialogue]
+character = "explorer"
+text = "我用鑰匙打開了地下寶庫的大門，裡面有寶石和金幣。"
+options = [
+  { text = "收集寶藏", next = "treasure" }
+]
+
+[dialogue.treasure]
+character = "explorer"
+text = "我收集了一些寶藏，準備帶回家。"
+options = [
+  { text = "繼續探索", next = "explore" },
+  { text = "直接離開", next = "leave" }
+]
+
+[dialogue.leave]
+character = "explorer"
+text = "我離開了地下寶庫。"
+options = [
+  { text = "回圖書館", next = "library" },
+  { text = "直接回家", next = "home" }
+]
+
+[dialogue.library]
+character = "explorer"
+text = "要回到圖書館探索更多祕密，須繳回全數寶藏。"
+options = [
+  { text = "繳回寶藏，返回圖書館", next = "end1" },
+  { text = "直接回家", next = "home" }
+]
+
+[dialogue.end1]
+character = "explorer"
+text = "為了知曉更多祕密，我願意放棄一切財產。\n因此得到成為守護神的資格，留在古堡享盡榮華富貴。"
+
+[dialogue.end2]
+character = "explorer"
+text = "這次探險刺激又有趣，我成功帶回了寶藏。"
+
+[dialogue.explore]
+character = "explorer"
+text = "那裡有一個奇怪的東西，像是機關。"
+options = [
+  { text = "啟動機關", next = "open" },
+  { text = "不理會，直接離開", next = "leave" }
+]
+
+[dialogue.open]
+character = "explorer"
+text = "機關啟動，出口的門關了起來。\n需要解開謎題才能開門。請問五年後60歲，五年前幾歲？"
+options = [
+  { text = "50", next = "yes" },
+  { text = "55", next = "end3" }
+]
+
+[dialogue.end3]
+character = "explorer"
+text = "我選擇觸碰機關，卻因解不開謎題被困在這裡直至死去。"
+
+[dialogue.yes]
+character = "explorer"
+text = "我成功解開謎題，大門打開，這時旁邊一道暗門也打開了。"
+options = [
+  { text = "進入暗門", next = "enter" },
+  { text = "直接離開", next = "leave" }
+]
+
+[dialogue.enter]
+character = "explorer"
+text = "隱藏的寶庫有更多寶石和金幣，我收集好後準備帶回家。"
+options = [
+  { text = "直接離開", next = "leave" }
+]
+
