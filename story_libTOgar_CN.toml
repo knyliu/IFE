@@ -35,13 +35,10 @@ name = "decryption-book"
 description = "含有解開秘密的線索"
 icon = "book.png"
 
-[event.start]
-scene = "library"
-dialogue = "initial_meeting"
-
 [dialogue.initial_meeting]
 character = "explorer"
 text = "這裡就是傳說中的圖書館! 聽說這隱藏著通往寶藏所在處的秘密，我一定要解開謎題帶著寶物回家!"
+background = "library.jpg"
 options = [
   { text = "咦? 那裏有個人", next = "find_iris" },
   { text = "在圖書館四處探索", next = "explore_library" }
@@ -50,6 +47,7 @@ options = [
 
 [dialogue.find_iris]
 character = "explorer"
+background = "library.jpg"
 text = "難道就是傳說中的館長艾瑞斯嗎?"
 options = [
   { text = "尋找艾瑞斯並詢問關於寶藏的信息", next = "iris_intro" },
@@ -58,6 +56,7 @@ options = [
 
 [dialogue.explore_library]
 character = "explorer"
+background = "library.jpg"
 text = "這裡被整理得很乾淨，想必一定是館長艾瑞斯的用心吧！"
 options = [
   { text = "回頭去找艾瑞斯問問看吧", next = "iris_help" },
@@ -66,6 +65,7 @@ options = [
 
 [dialogue.iris_intro]
 character = "iris"
+background = "library.jpg"
 text = "你一看就是來尋找寶藏的人，通往寶藏之路充滿險境，許多人都無功而返，即便如此你還是願意前往嗎?"
 options = [
   { text = "當然!我準備好了，請告訴我更多訊息", next = "iris_help" },
@@ -74,6 +74,7 @@ options = [
 
 [dialogue.iris_help]
 character = "iris"
+background = "library.jpg"
 text = "好吧，如果你真的準備好了，你需要先找到古老的解密書它藏在圖書館的某處"
 options = [
   { text = "尋找解密書", next = "find_book" },
@@ -82,6 +83,7 @@ options = [
 
 [dialogue.find_book]
 character = "explorer"
+background = "library.jpg"
 text = "這裡有一本看起來分常神秘的古書籍!又藏在圖書館深處，想必它正是我要找的解密書"
 options = [
   { text = "拿起解密書！", inventory_add = "decryption-book", next = "return_to_iris" }
@@ -89,6 +91,7 @@ options = [
 
 [dialogue.return_to_iris]
 character = "explorer"
+background = "library.jpg"
 text = "現在去找艾瑞斯吧!"
 options = [
   { text = "向艾瑞斯展示解密書", next = "show_book_to_iris" }
@@ -96,33 +99,33 @@ options = [
 
 [dialogue.show_book_to_iris]
 character = "iris"
+background = "library.jpg"
 text = "這就是那本書！現在，你可以前往秘密花園，找到古老的鑰匙"
 options = [
-  { text = "拿起解密書並前往秘密花園", inventory_add = "decryption-book", event = "change_scene_to_garden" },
+  { text = "拿起解密書並前往秘密花園", next = "garden_arrival" },
   { text = "先不前往", next = "stay_in_library" }
 ]
 
 [dialogue.stay_in_library]
 character = "explorer"
+background = "library.jpg"
 text = "我決定先在圖書館再探索一會兒，也許還會發現其他有用的線索"
 options = [
   { text = "繼續探索圖書館", next = "explore_library_more" },
-  { text = "現在前往秘密花園", event = "change_scene_to_garden" }
+  { text = "現在前往秘密花園", next = "garden_arrival" }
 ]
 
 [dialogue.explore_library_more]
 character = "explorer"
+background = "library.jpg"
 text = "圖書館裡的每一個角落都充滿了神秘，但現在似乎沒有更多的線索了"
 options = [
-  { text = "前往秘密花園", event = "change_scene_to_garden" }
+  { text = "前往秘密花園", next = "garden_arrival" }
 ]
-
-[event.change_scene_to_garden]
-scene = "secret-garden"
-dialogue = "garden_arrival"
 
 [dialogue.garden_arrival]
 character = "explorer"
+background = "garden.jpg"
 text = "秘密花園是個迷人的地方，充滿了奇異的花草和迷宮般的小徑"
 options = [
   { text = "尋找古老的鑰匙", next = "find_key" },
@@ -131,13 +134,15 @@ options = [
 
 [dialogue.find_key]
 character = "explorer"
+background = "garden.jpg"
 text = "在一個隱蔽的噴泉後面，我找到了古老的鑰匙"
 options = [
-  { text = "拿起鑰匙", inventory_add = "ancient-key", event = "change_scene_to_vault" }
+  { text = "拿起鑰匙", inventory_add = "ancient-key", next = "to_vault" }
 ]
 
 [dialogue.explore_garden]
 character = "explorer"
+background = "garden.jpg"
 text = "花園裡的每一個轉角都充滿了神秘突然，一位名叫萊娜的守護者出現了"
 options = [
   { text = "與萊娜交談", next = "lena_intro" },
@@ -146,6 +151,7 @@ options = [
 
 [dialogue.lena_intro]
 character = "lena"
+background = "garden.jpg"
 text = "你好，探險家你在這裡尋找什麼？"
 options = [
   { text = "告訴萊娜關於寶藏的事", next = "lena_help" },
@@ -154,8 +160,9 @@ options = [
 
 [dialogue.lena_help]
 character = "lena"
+background = "garden.jpg"
 text = "我知道你在尋找什麼這把古老的鑰匙將會幫助你"
 options = [
-  { text = "感謝萊娜並前往地下寶庫", inventory_add = "ancient-key", event = "change_scene_to_vault" },
+  { text = "感謝萊娜並前往地下寶庫", inventory_add = "ancient-key", next = "to_vault" },
   { text = "離開花園", next = "leave_garden" }
 ]
