@@ -10,6 +10,8 @@
 const int SCREEN_WIDTH = 1000;
 const int SCREEN_HEIGHT = 600;
 
+#define SCALE 1
+
 typedef struct {
     char scene_name[256];
     char background[256];
@@ -22,6 +24,7 @@ typedef struct {
     char options[2][256];  // 兩個選項文字
     char next[2][256];     // 兩個選項對應的下一個對話標籤
     char scene[256];       // 當前場景
+    char event[256];       // 事件
 } Dialogue;
 
 typedef struct {
@@ -30,7 +33,7 @@ typedef struct {
 } Character;
 
 Scene scenes[10];
-Dialogue dialogues[30];
+Dialogue dialogues[20];
 Character characters[10];
 int currentDialogueIndex = 0;
 
@@ -40,6 +43,7 @@ int findCharacterIndex(const char* characterName);
 SDL_Texture* renderText(SDL_Renderer* renderer, const char* message, TTF_Font* font, SDL_Color color);
 void updateScene(SDL_Renderer* renderer, SDL_Texture** bgTexture, SDL_Texture** characterTexture, TTF_Font* font, SDL_Color textColor, SDL_Texture** textTexture, SDL_Texture** button1Texture, SDL_Texture** button2Texture);
 bool isMouseOverButton(int x, int y, SDL_Rect buttonRect);
+void handleEvent(SDL_Renderer* renderer, SDL_Texture** bgTexture, SDL_Texture** characterTexture, TTF_Font* font, SDL_Color textColor, SDL_Texture** textTexture, SDL_Texture** button1Texture, SDL_Texture** button2Texture, const char* event);
 
 void loadScenesAndDialogues(const char* filename) {
     FILE* fp;
@@ -108,6 +112,12 @@ void loadScenesAndDialogues(const char* filename) {
                 free(scene);
             }
 
+            char* event = NULL;
+            if (toml_rtos(toml_raw_in(tab, "event"), &event) == 0 && event) {
+                snprintf(dialogues[i-1].event, sizeof(dialogues[i-1].event), "%s", event);
+                free(event);
+            }
+
             toml_array_t* opt_array = toml_array_in(tab, "options");
             for (int j = 0; j < toml_array_nelem(opt_array); j++) {
                 toml_table_t* opt_tab = toml_table_at(opt_array, j);
@@ -165,6 +175,10 @@ int findCharacterIndex(const char* characterName) {
 }
 
 SDL_Texture* renderText(SDL_Renderer* renderer, const char* message, TTF_Font* font, SDL_Color color) {
+    if (strlen(message) == 0) {
+        printf("Error: Text is empty!\n");
+        return NULL;
+    }
     SDL_Surface* textSurface = TTF_RenderUTF8_Solid(font, message, color);
     if (textSurface == NULL) {
         printf("Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
@@ -248,6 +262,20 @@ bool isMouseOverButton(int x, int y, SDL_Rect buttonRect) {
            y >= buttonRect.y && y <= buttonRect.y + buttonRect.h;
 }
 
+void handleEvent(SDL_Renderer* renderer, SDL_Texture** bgTexture, SDL_Texture** characterTexture, TTF_Font* font, SDL_Color textColor, SDL_Texture** textTexture, SDL_Texture** button1Texture, SDL_Texture** button2Texture, const char* event) {
+    if (strcmp(event, "change_scene_to_garden") == 0) {
+        printf("Event: %s\n", event);
+        currentDialogueIndex = findDialogueIndex("garden_arrival");
+        updateScene(renderer, bgTexture, characterTexture, font, textColor, textTexture, button1Texture, button2Texture);
+    } else if (strcmp(event, "change_scene_to_vault") == 0) {
+        printf("Event: %s\n", event);
+        currentDialogueIndex = findDialogueIndex("vault_arrival");
+        updateScene(renderer, bgTexture, characterTexture, font, textColor, textTexture, button1Texture, button2Texture);
+    } else {
+        printf("Unknown event: %s\n", event);
+    }
+}
+
 int main(int argc, char* argv[]) {
     // 初始化SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -255,14 +283,14 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    // 窗口
-    SDL_Window* window = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    // 創建窗口
+    SDL_Window* window = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH * SCALE, SCREEN_HEIGHT * SCALE, SDL_WINDOW_SHOWN);
     if (window == NULL) {
         printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return -1;
     }
 
-    // 渲染
+    // 創建渲染器
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == NULL) {
         printf("Renderer could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -283,7 +311,7 @@ int main(int argc, char* argv[]) {
     }
 
     // 讀取劇本
-    loadScenesAndDialogues("story_CN.toml");
+    loadScenesAndDialogues("money.toml");
 
     // 加載初始背景圖片
     printf("Loading initial background image: %s\n", scenes[0].background);
@@ -304,8 +332,8 @@ int main(int argc, char* argv[]) {
     SDL_Texture* characterTexture = SDL_CreateTextureFromSurface(renderer, playerSurface);
     SDL_FreeSurface(playerSurface);
 
-    // 字型
-    TTF_Font* font = TTF_OpenFont("NotoSansTC-Regular.ttf", 28);
+    // 加載字型
+    TTF_Font* font = TTF_OpenFont("NotoSansTC-Regular.ttf", 28 * SCALE);
     if (font == NULL) {
         printf("Failed to load font! SDL_ttf Error: %s\n", TTF_GetError());
         return -1;
@@ -323,15 +351,22 @@ int main(int argc, char* argv[]) {
     SDL_Texture* button1Texture = renderText(renderer, dialogues[currentDialogueIndex].options[0], font, textColor);
     SDL_Texture* button2Texture = renderText(renderer, dialogues[currentDialogueIndex].options[1], font, textColor);
 
-    // 按鈕位置
-    SDL_Rect button1Rect = {SCREEN_WIDTH / 4 - 200, SCREEN_HEIGHT - 80, 400, 50};
-    SDL_Rect button2Rect = {3 * SCREEN_WIDTH / 4 - 200, SCREEN_HEIGHT - 80, 400, 50};
+    // 計算按鈕位置和大小
+    int scaled_width = 400 * SCALE;
+    int scaled_height = 50 * SCALE;
+    int scaled_x1 = (SCREEN_WIDTH * SCALE / 4) - (scaled_width / 2);
+    int scaled_x2 = (3 * SCREEN_WIDTH * SCALE / 4) - (scaled_width / 2);
+    int scaled_y = SCREEN_HEIGHT * SCALE - 80;  // 保持原始 Y 位置不變
 
-    
+    SDL_Rect button1Rect = {scaled_x1, scaled_y, scaled_width, scaled_height};
+    SDL_Rect button2Rect = {scaled_x2, scaled_y, scaled_width, scaled_height};
+
+    // 主要循環
     bool quit = false;
     SDL_Event e;
 
-    while (!quit) {        
+    while (!quit) {
+        // 處理事件
         while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_QUIT) {
                 quit = true;
@@ -341,28 +376,31 @@ int main(int argc, char* argv[]) {
                 printf("Mouse Clicked at (%d, %d)\n", x, y); // 打印鼠標點擊位置
                 if (isMouseOverButton(x, y, button1Rect)) {
                     printf("Button 1 Clicked\n");
-                    int nextDialogueIndex = findDialogueIndex(dialogues[currentDialogueIndex].next[0]);
-                    if (nextDialogueIndex != -1) {
-                        currentDialogueIndex = nextDialogueIndex;
-                        printf("Switching to dialogue: %s\n", dialogues[currentDialogueIndex].label);
-                        updateScene(renderer, &bgTexture, &characterTexture, font, textColor, &textTexture, &button1Texture, &button2Texture);
-                    } 
-                    else {
-                        printf("Next dialogue not found: %s\n", dialogues[currentDialogueIndex].next[0]);
+                    if (strlen(dialogues[currentDialogueIndex].event) > 0) {
+                        handleEvent(renderer, &bgTexture, &characterTexture, font, textColor, &textTexture, &button1Texture, &button2Texture, dialogues[currentDialogueIndex].event);
+                    } else {
+                        int nextDialogueIndex = findDialogueIndex(dialogues[currentDialogueIndex].next[0]);
+                        if (nextDialogueIndex != -1) {
+                            currentDialogueIndex = nextDialogueIndex;
+                            printf("Switching to dialogue: %s\n", dialogues[currentDialogueIndex].label);
+                            updateScene(renderer, &bgTexture, &characterTexture, font, textColor, &textTexture, &button1Texture, &button2Texture);
+                        } else {
+                            printf("Next dialogue not found: %s\n", dialogues[currentDialogueIndex].next[0]);
+                        }
                     }
-                } 
-                
-                else if (isMouseOverButton(x, y, button2Rect)) {
+                } else if (isMouseOverButton(x, y, button2Rect)) {
                     printf("Button 2 Clicked\n");
-                    int nextDialogueIndex = findDialogueIndex(dialogues[currentDialogueIndex].next[1]);
-                    if (nextDialogueIndex != -1) {
-                        currentDialogueIndex = nextDialogueIndex;
-                        printf("Switching to dialogue: %s\n", dialogues[currentDialogueIndex].label);
-                        updateScene(renderer, &bgTexture, &characterTexture, font, textColor, &textTexture, &button1Texture, &button2Texture);
-                    } 
-                    
-                    else {
-                        printf("Next dialogue not found: %s\n", dialogues[currentDialogueIndex].next[1]);
+                    if (strlen(dialogues[currentDialogueIndex].event) > 0) {
+                        handleEvent(renderer, &bgTexture, &characterTexture, font, textColor, &textTexture, &button1Texture, &button2Texture, dialogues[currentDialogueIndex].event);
+                    } else {
+                        int nextDialogueIndex = findDialogueIndex(dialogues[currentDialogueIndex].next[1]);
+                        if (nextDialogueIndex != -1) {
+                            currentDialogueIndex = nextDialogueIndex;
+                            printf("Switching to dialogue: %s\n", dialogues[currentDialogueIndex].label);
+                            updateScene(renderer, &bgTexture, &characterTexture, font, textColor, &textTexture, &button1Texture, &button2Texture);
+                        } else {
+                            printf("Next dialogue not found: %s\n", dialogues[currentDialogueIndex].next[1]);
+                        }
                     }
                 }
             }
@@ -375,15 +413,15 @@ int main(int argc, char* argv[]) {
         // 半透明黑色窗口
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128); // 黑色，50% 透明度
-        SDL_Rect blackRect = { 0, SCREEN_HEIGHT - 200, SCREEN_WIDTH, 200 };
+        SDL_Rect blackRect = { 0, SCREEN_HEIGHT * SCALE - 200 * SCALE, SCREEN_WIDTH * SCALE, 200 * SCALE };
         SDL_RenderFillRect(renderer, &blackRect);
 
         // 人物
-        SDL_Rect playerRect = { 100, SCREEN_HEIGHT - 300, 100, 150 };  // 調整人物位置
+        SDL_Rect playerRect = { 100 * SCALE, SCREEN_HEIGHT * SCALE - 300 * SCALE, 100 * SCALE, 150 * SCALE };  // 調整人物位置
         SDL_RenderCopy(renderer, characterTexture, NULL, &playerRect);
 
         // 文字
-        SDL_Rect textRect = { 50, SCREEN_HEIGHT - 180, SCREEN_WIDTH - 100, 100 };  // 調整文字位置和大小
+        SDL_Rect textRect = { 50 * SCALE, SCREEN_HEIGHT * SCALE - 180 * SCALE, SCREEN_WIDTH * SCALE - 100 * SCALE, 100 * SCALE };  // 調整文字位置和大小
         SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
 
         // 按鈕背景
@@ -393,11 +431,11 @@ int main(int argc, char* argv[]) {
 
         // 按鈕文字
         if (button1Texture != NULL) {
-            SDL_Rect button1TextRect = {button1Rect.x + 10, button1Rect.y + 10, button1Rect.w - 20, button1Rect.h - 20};
+            SDL_Rect button1TextRect = {button1Rect.x + 10 * SCALE, button1Rect.y + 10 * SCALE, button1Rect.w - 20 * SCALE, button1Rect.h - 20 * SCALE};
             SDL_RenderCopy(renderer, button1Texture, NULL, &button1TextRect);
         }
         if (button2Texture != NULL) {
-            SDL_Rect button2TextRect = {button2Rect.x + 10, button2Rect.y + 10, button2Rect.w - 20, button2Rect.h - 20};
+            SDL_Rect button2TextRect = {button2Rect.x + 10 * SCALE, button2Rect.y + 10 * SCALE, button2Rect.w - 20 * SCALE, button2Rect.h - 20 * SCALE};
             SDL_RenderCopy(renderer, button2Texture, NULL, &button2TextRect);
         }
 
