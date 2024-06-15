@@ -1,26 +1,176 @@
+[scene.library]
+name = "library"
+background = "library.jpg"
+
+[scene.secret-garden]
+name = "secret-garden"
+background = "garden.jpg"
+
 [scene.treasure-vault]
 name = "vault"
 background = "vault.jpg"
 
-[scene.home]
-name = "home"
-background = "home.jpg"
-
-[scene.secret2]
-name = "secret2"
-background = "secret2.jpg"
-
 [character.explorer]
 name = "explorer"
 avatar = "player_happy.png"
+tachie = "player_terrified.png"
 
-[event.start]
-scene = "vault"
-dialogue = "to_vault"
+[character.iris]
+name = "iris"
+avatar = "iris.png"
+tachie = "iris.png"
+
+[character.lena]
+name = "lena"
+avatar = "girl.png"
+tachie = "girl.png"
+
+[item.ancient-key]
+name = "ancient-key"
+description = "開啟地下寶庫的鑰匙"
+icon = "key.png"
+
+[item.decryption-book]
+name = "decryption-book"
+description = "含有解開秘密的線索"
+icon = "book.png"
+
+[dialogue.initial_meeting]
+character = "explorer"
+text = "這裡就是傳說中的圖書館! 聽說這隱藏著通往寶藏所在處的秘密，我一定要解開謎題帶著寶物回家!"
+background = "library.jpg"
+options = [
+  { text = "咦? 那裏有個人", next = "find_iris" },
+  { text = "在圖書館四處探索", next = "explore_library" }
+]
+
+
+[dialogue.find_iris]
+character = "explorer"
+background = "library.jpg"
+text = "難道就是傳說中的館長艾瑞斯嗎?"
+options = [
+  { text = "尋找艾瑞斯並詢問關於寶藏的信息", next = "iris_intro" },
+  { text = "在圖書館四處探索", next = "explore_library" }
+]
+
+[dialogue.explore_library]
+character = "explorer"
+background = "library.jpg"
+text = "這裡被整理得很乾淨，想必一定是館長艾瑞斯的用心吧！"
+options = [
+  { text = "回頭去找艾瑞斯問問看吧", next = "iris_help" },
+  { text = "我還是比較相信我自己！", next = "explore_library_more" }
+]
+
+[dialogue.iris_intro]
+character = "iris"
+background = "library.jpg"
+text = "你一看就是來尋找寶藏的人，通往寶藏之路充滿險境，許多人都無功而返，即便如此你還是願意前往嗎?"
+options = [
+  { text = "當然!我準備好了，請告訴我更多訊息", next = "iris_help" },
+  { text = "我只是來看看", next = "explore_library" }
+]
+
+[dialogue.iris_help]
+character = "iris"
+background = "library.jpg"
+text = "好吧，如果你真的準備好了，你需要先找到古老的解密書它藏在圖書館的某處"
+options = [
+  { text = "尋找解密書", next = "find_book" },
+  { text = "離開圖書館", next = "leave_library" }
+]
+
+[dialogue.find_book]
+character = "explorer"
+background = "library.jpg"
+text = "這裡有一本看起來分常神秘的古書籍!又藏在圖書館深處，想必它正是我要找的解密書"
+options = [
+  { text = "拿起解密書！", inventory_add = "decryption-book", next = "return_to_iris" }
+]
+
+[dialogue.return_to_iris]
+character = "explorer"
+background = "library.jpg"
+text = "現在去找艾瑞斯吧!"
+options = [
+  { text = "向艾瑞斯展示解密書", next = "show_book_to_iris" }
+]
+
+[dialogue.show_book_to_iris]
+character = "iris"
+background = "library.jpg"
+text = "這就是那本書！現在，你可以前往秘密花園，找到古老的鑰匙"
+options = [
+  { text = "拿起解密書並前往秘密花園", next = "garden_arrival" },
+  { text = "先不前往", next = "stay_in_library" }
+]
+
+[dialogue.stay_in_library]
+character = "explorer"
+background = "library.jpg"
+text = "我決定先在圖書館再探索一會兒，也許還會發現其他有用的線索"
+options = [
+  { text = "繼續探索圖書館", next = "explore_library_more" },
+  { text = "現在前往秘密花園", next = "garden_arrival" }
+]
+
+[dialogue.explore_library_more]
+character = "explorer"
+background = "library.jpg"
+text = "圖書館裡的每一個角落都充滿了神秘，但現在似乎沒有更多的線索了"
+options = [
+  { text = "前往秘密花園", next = "garden_arrival" }
+]
+
+[dialogue.garden_arrival]
+character = "explorer"
+background = "garden.jpg"
+text = "秘密花園是個迷人的地方，充滿了奇異的花草和迷宮般的小徑"
+options = [
+  { text = "尋找古老的鑰匙", next = "find_key" },
+  { text = "探索花園", next = "explore_garden" }
+]
+
+[dialogue.find_key]
+character = "explorer"
+background = "garden.jpg"
+text = "在一個隱蔽的噴泉後面，我找到了古老的鑰匙"
+options = [
+  { text = "拿起鑰匙", inventory_add = "ancient-key", next = "to_vault" }
+]
+
+[dialogue.explore_garden]
+character = "explorer"
+background = "garden.jpg"
+text = "花園裡的每一個轉角都充滿了神秘突然，一位名叫萊娜的守護者出現了"
+options = [
+  { text = "與萊娜交談", next = "lena_intro" },
+  { text = "繼續探索花園", next = "explore_garden_more" }
+]
+
+[dialogue.lena_intro]
+character = "lena"
+background = "garden.jpg"
+text = "你好，探險家你在這裡尋找什麼？"
+options = [
+  { text = "告訴萊娜關於寶藏的事", next = "lena_help" },
+  { text = "隱瞞你的目的", next = "lena_suspect" }
+]
+
+[dialogue.lena_help]
+character = "lena"
+background = "garden.jpg"
+text = "我知道你在尋找什麼這把古老的鑰匙將會幫助你"
+options = [
+  { text = "感謝萊娜並前往地下寶庫", inventory_add = "ancient-key", next = "to_vault" },
+  { text = "離開花園", next = "leave_garden" }
+]
 
 [dialogue.to_vault]
 character = "explorer"
 text = "我用鑰匙打開了地下寶庫的大門，裡面有寶石和金幣。"
+background = "vault.jpg"
 options = [
   { text = "收集寶藏", next = "treasure" }
 ]
@@ -28,7 +178,90 @@ options = [
 [dialogue.treasure]
 character = "explorer"
 text = "我收集了一些寶藏，準備帶回家。"
+background = "vault.jpg"
 options = [
-  { text = "繼續探索", next = "explore" },
+  { text = "看看附近", next = "near" },
   { text = "直接離開", next = "leave" }
+]
+
+[dialogue.leave]
+character = "explorer"
+text = "我離開了地下寶庫。"
+background = "garden.jpg"
+options = [
+  { text = "回圖書館", next = "library" },
+  { text = "直接回家", next = "home" }
+]
+
+[dialogue.library]
+character = "explorer"
+text = "要回到圖書館探索更多祕密，須繳回全數寶藏。"
+background = "garden.jpg"
+options = [
+  { text = "繳回寶藏", next = "end1" },
+  { text = "直接回家", next = "home" }
+]
+
+[dialogue.end1]
+character = "explorer"
+text = "為了知曉更多祕密，我願意放棄一切財產。"
+background = "library.jpg"
+options = [
+  { text = "遊戲結束",},
+  { text = "遊戲結束",}
+]
+
+[dialogue.end2]
+character = "explorer"
+text = "這次探險刺激又有趣，我成功帶回了寶藏。"
+background = "home.jpg"
+options = [
+  { text = "遊戲結束",},
+  { text = "遊戲結束",}
+]
+
+
+[dialogue.near]
+character = "explorer"
+text = "那裡有一個奇怪的東西，像是機關。"
+background = "vault.jpg"
+options = [
+  { text = "啟動機關", next = "open" },
+  { text = "直接離開", next = "leave" }
+]
+
+[dialogue.open]
+character = "explorer"
+text = "機關啟動，出口的門關了起來。需要解開謎題才能開門。請問五年後60歲，五年前幾歲？"
+background = "vault.jpg"
+options = [
+  { text = "  50  ", next = "yes" },
+  { text = "  55  ", next = "end3" }
+]
+
+[dialogue.end3]
+character = "explorer"
+text = "我選擇觸碰機關，卻因解不開謎題被困在這裡直至死去。"
+background = "home.jpg"
+options = [
+  { text = "遊戲結束",},
+  { text = "遊戲結束",}
+]
+
+
+[dialogue.yes]
+character = "explorer"
+text = "我成功解開謎題，大門打開，這時旁邊一道暗門也打開了。"
+background = "vault.jpg"
+options = [
+  { text = "進入暗門", next = "enter" },
+  { text = "直接離開", next = "leave" }
+]
+
+[dialogue.enter]
+character = "explorer"
+text = "隱藏的寶庫有更多寶石和金幣，我收集好後準備帶回家。"
+background = "secret2.jpg"
+options = [
+ { text = "直接離開", next = "leave" }
 ]
