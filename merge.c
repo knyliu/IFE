@@ -296,7 +296,7 @@ int runGame1() {
     }
 
     // 讀取劇本
-    loadScenesAndDialogues("money.toml");
+    loadScenesAndDialogues("merge.toml");
 
     // 背景圖片
     SDL_Surface* bgSurface = IMG_Load(scenes[0].background);
