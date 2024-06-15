@@ -296,7 +296,7 @@ int runGame1() {
     }
 
     // 讀取劇本
-    loadScenesAndDialogues("merge.toml");
+    loadScenesAndDialogues("money.toml");
 
     // 背景圖片
     SDL_Surface* bgSurface = IMG_Load(scenes[0].background);
@@ -619,13 +619,13 @@ void renderTextOnImage(SDL_Renderer* renderer, TTF_Font* font, const char* text,
     SDL_DestroyTexture(textTexture);
     SDL_FreeSurface(textSurface);
 }
-
 int runGame2() {
     const char* geminiUrl = "https://generativelanguage.googleapis.com/v1/models/gemini-1.0-pro-latest:generateContent?key=AIzaSyDLKFLtYLdnCamnpNCKo5mZZenAvIhoPJs";
     const char* huggingFaceUrl = "https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5";
     const char* outputFilename = "output.jpg";
     const char* waitingFilename = "waiting.jpg";
-    char inputText[256] = "";
+    const char* replaceFilename = "replace.jpg";  // 替代背景圖片文件名
+    char inputText[256] = "請輸入指令";  // 初始化輸入框顯示提示字元
     char nextInputText[256] = "";
     bool inputComplete = false;
     bool nextInputComplete = false;
@@ -666,7 +666,7 @@ int runGame2() {
     }
 
     // 加載字型
-    TTF_Font* font = TTF_OpenFont("NotoSansTC-Regular.ttf", 24);
+    TTF_Font* font = TTF_OpenFont("NotoSansTC-Regular.ttf", 18);  // 將字體大小設置為14
     if (font == NULL) {
         printf("\nFailed to load font! SDL_ttf Error: %s\n", TTF_GetError());
         return -1;
@@ -696,6 +696,10 @@ int runGame2() {
             if (e.type == SDL_QUIT) {
                 quit = true;
             } else if (e.type == SDL_TEXTINPUT) {
+                if (strcmp(inputText, "請輸入指令") == 0) {
+                    // 清空提示字元
+                    inputText[0] = '\0';
+                }
                 strcat(inputText, e.text.text);
             } else if (e.type == SDL_KEYDOWN) {
                 if (e.key.keysym.sym == SDLK_RETURN) {
@@ -805,8 +809,6 @@ int runGame2() {
     printf("\nRefined prompt for Hugging Face: %s\n", refinedPrompt);
 
     // 顯示waiting圖片
-
-
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, waitingTexture, NULL, NULL);
     SDL_RenderPresent(renderer);
@@ -832,23 +834,27 @@ int runGame2() {
         return -1;
     }
 
-    // 加載下載的圖片
+    // 加載下載的圖片，如果失敗則加載替代圖片
     SDL_Surface* bgSurface = IMG_Load(outputFilename);
     if (bgSurface == NULL) {
         printf("\nUnable to load image %s! SDL_image Error: %s\n", outputFilename, IMG_GetError());
-        SDL_DestroyTexture(waitingTexture);
-        SDL_DestroyTexture(geminiResponseTexture);
-        SDL_FreeSurface(geminiResponseSurface);
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        TTF_CloseFont(font);
-        TTF_Quit();
-        IMG_Quit();
-        SDL_Quit();
-        free(geminiResponse);
-        free(refinedPrompt);
-        free(geminiTextContent);
-        return -1;
+        bgSurface = IMG_Load(replaceFilename);
+        if (bgSurface == NULL) {
+            printf("\nUnable to load replace image %s! SDL_image Error: %s\n", replaceFilename, IMG_GetError());
+            SDL_DestroyTexture(waitingTexture);
+            SDL_DestroyTexture(geminiResponseTexture);
+            SDL_FreeSurface(geminiResponseSurface);
+            SDL_DestroyRenderer(renderer);
+            SDL_DestroyWindow(window);
+            TTF_CloseFont(font);
+            TTF_Quit();
+            IMG_Quit();
+            SDL_Quit();
+            free(geminiResponse);
+            free(refinedPrompt);
+            free(geminiTextContent);
+            return -1;
+        }
     }
     SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
     SDL_FreeSurface(bgSurface);
@@ -908,42 +914,42 @@ int runGame2() {
             geminiResponse = perform_query(geminiUrl, geminiRequestData, NULL);
 
             printf("\nGemini response: %s\n", geminiResponse); // 調試輸出
-    // 提取 Gemini response 中的 text 內容
-    cJSON *geminiJson = cJSON_Parse(geminiResponse);
-    if (geminiJson == NULL) {
-        fprintf(stderr, "JSON parse error in runGame2\n");
-        SDL_DestroyTexture(waitingTexture);
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        TTF_CloseFont(font);
-        TTF_Quit();
-        IMG_Quit();
-        SDL_Quit();
-        free(geminiResponse);
-        return -1;
-    }
 
-    cJSON *geminiCandidates = cJSON_GetObjectItem(geminiJson, "candidates");
-    cJSON *geminiFirstCandidate = cJSON_GetArrayItem(geminiCandidates, 0);
-    cJSON *geminiContent = cJSON_GetObjectItem(geminiFirstCandidate, "content");
-    cJSON *geminiParts = cJSON_GetObjectItem(geminiContent, "parts");
-    cJSON *geminiFirstPart = cJSON_GetArrayItem(geminiParts, 0);
-    cJSON *geminiText = cJSON_GetObjectItem(geminiFirstPart, "text");
+            // 提取 Gemini response 中的 text 內容
+            cJSON *geminiJson = cJSON_Parse(geminiResponse);
+            if (geminiJson == NULL) {
+                fprintf(stderr, "JSON parse error in runGame2\n");
+                SDL_DestroyTexture(waitingTexture);
+                SDL_DestroyRenderer(renderer);
+                SDL_DestroyWindow(window);
+                TTF_CloseFont(font);
+                TTF_Quit();
+                IMG_Quit();
+                SDL_Quit();
+                free(geminiResponse);
+                break;
+            }
 
-    // 刪除所有星號(*)和雙引號(")
-    geminiTextContent = strdup(cJSON_GetStringValue(geminiText));
-    p = geminiTextContent;
-    q = geminiTextContent;
-    while (*q) {
-        *p = *q++;
-        p += (*p != '*' && *p != '"');
-    }
-    *p = '\0';
+            cJSON *geminiCandidates = cJSON_GetObjectItem(geminiJson, "candidates");
+            cJSON *geminiFirstCandidate = cJSON_GetArrayItem(geminiCandidates, 0);
+            cJSON *geminiContent = cJSON_GetObjectItem(geminiFirstCandidate, "content");
+            cJSON *geminiParts = cJSON_GetObjectItem(geminiContent, "parts");
+            cJSON *geminiFirstPart = cJSON_GetArrayItem(geminiParts, 0);
+            cJSON *geminiText = cJSON_GetObjectItem(geminiFirstPart, "text");
 
-    cJSON_Delete(geminiJson);
+            // 刪除所有星號(*)和雙引號(")
+            geminiTextContent = strdup(cJSON_GetStringValue(geminiText));
+            p = geminiTextContent;
+            q = geminiTextContent;
+            while (*q) {
+                *p = *q++;
+                p += (*p != '*' && *p != '"');
+            }
+            *p = '\0';
 
-    printf("\nGemini extracted text: %s\n", geminiTextContent); // 調試輸出
+            cJSON_Delete(geminiJson);
 
+            printf("\nGemini extracted text: %s\n", geminiTextContent); // 調試輸出
 
             // 獲取摘要
             refinedPrompt = get_refined_prompt(geminiTextContent);
@@ -986,18 +992,24 @@ int runGame2() {
                 break;
             }
 
-            // 加載下載的圖片
+            // 加載下載的圖片，如果失敗則加載替代圖片
             bgSurface = IMG_Load(outputFilename);
             if (bgSurface == NULL) {
                 printf("\nUnable to load image %s! SDL_image Error: %s\n", outputFilename, IMG_GetError());
-                SDL_DestroyTexture(bgTexture);
-                SDL_DestroyRenderer(renderer);
-                SDL_DestroyWindow(window);
-                TTF_CloseFont(font);
-                TTF_Quit();
-                IMG_Quit();
-                SDL_Quit();
-                break;
+                bgSurface = IMG_Load(replaceFilename);
+                if (bgSurface == NULL) {
+                    printf("\nUnable to load replace image %s! SDL_image Error: %s\n", replaceFilename, IMG_GetError());
+                    SDL_DestroyTexture(bgTexture);
+                    SDL_DestroyRenderer(renderer);
+                    SDL_DestroyWindow(window);
+                    TTF_CloseFont(font);
+                    TTF_Quit();
+                    IMG_Quit();
+                    SDL_Quit();
+                    free(geminiResponse);
+                    free(refinedPrompt);
+                    break;
+                }
             }
             SDL_DestroyTexture(bgTexture);
             bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
@@ -1021,6 +1033,9 @@ int runGame2() {
 
     return 0;
 }
+
+
+
 
 int main(int argc, char* argv[]) {
     // 進行遊戲1
