@@ -258,7 +258,7 @@ int runGame1() {
         return -1;
     }
 
-    loadScenesAndDialogues("example-game/script.toml");
+    loadScenesAndDialogues("example-game/script_new.toml");
 
     // 確認初始背景圖片存在
     printf("Initial dialogue background: %s\n", dialogues[currentDialogueIndex].background); // 添加這行來調試
@@ -367,11 +367,11 @@ int runGame1() {
         SDL_RenderFillRect(renderer, &button2Rect);
 
         if (button1Texture != NULL) {
-            SDL_Rect button1TextRect = {button1Rect.x + 150 * SCALE, button1Rect.y + 10 * SCALE, button1Rect.w - 300 * SCALE, button1Rect.h - 20 * SCALE};
+            SDL_Rect button1TextRect = {button1Rect.x + 50 * SCALE, button1Rect.y + 10 * SCALE, button1Rect.w - 150 * SCALE, button1Rect.h - 20 * SCALE};
             SDL_RenderCopy(renderer, button1Texture, NULL, &button1TextRect);
         }
         if (button2Texture != NULL) {
-            SDL_Rect button2TextRect = {button2Rect.x + 150 * SCALE, button2Rect.y + 10 * SCALE, button2Rect.w - 300 * SCALE, button2Rect.h - 20 * SCALE};
+            SDL_Rect button2TextRect = {button2Rect.x + 50 * SCALE, button2Rect.y + 10 * SCALE, button2Rect.w - 150 * SCALE, button2Rect.h - 20 * SCALE};
             SDL_RenderCopy(renderer, button2Texture, NULL, &button2TextRect);
         }
 
