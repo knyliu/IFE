@@ -95,7 +95,7 @@ background = "example-game/assets/library.jpg"
 text = "這裡有一本看起來分常神秘的古書籍!又藏在圖書館深處，想必它正是我要找的解密書"
 options = [
   { text = "拿起解密書！", inventory_add = "decryption-book", next = "return_to_iris" },
-  { text = "離開古堡", next = "last_scene" }
+  { text = "離開古堡，結束探險", next = "last_scene" }
 ]
 
 [dialogue.return_to_iris]
@@ -104,7 +104,7 @@ background = "example-game/assets/library.jpg"
 text = "現在去找艾瑞斯吧!"
 options = [
   { text = "向艾瑞斯展示解密書", next = "show_book_to_iris" },
-  { text = "離開古堡", next = "last_scene" }
+  { text = "離開古堡，結束探險", next = "last_scene" }
 ]
 
 [dialogue.show_book_to_iris]
@@ -113,7 +113,7 @@ background = "example-game/assets/library.jpg"
 text = "這就是那本書！現在，你可以前往秘密花園，找到古老的鑰匙"
 options = [
   { text = "拿起解密書並前往秘密花園", next = "garden_arrival" },
-  { text = "先不前往", next = "stay_in_library" }
+  { text = "先不前往，待在圖書館", next = "stay_in_library" }
 ]
 
 [dialogue.stay_in_library]
@@ -131,7 +131,7 @@ background = "example-game/assets/library.jpg"
 text = "圖書館裡的每一個角落都充滿了神秘，但現在似乎沒有更多的線索了"
 options = [
   { text = "前往秘密花園", next = "garden_arrival" },
-  { text = "離開古堡", next = "last_scene" }
+  { text = "離開古堡，結束探險", next = "last_scene" }
 ]
 
 [dialogue.garden_arrival]
@@ -140,7 +140,7 @@ background = "example-game/assets/garden.jpg"
 text = "秘密花園是個迷人的地方，充滿了奇異的花草和迷宮般的小徑"
 options = [
   { text = "尋找古老的鑰匙", next = "find_key" },
-  { text = "探索花園", next = "explore_garden" }
+  { text = "探索花園，找人詢問", next = "explore_garden" }
 ]
 
 [dialogue.find_key]
@@ -148,8 +148,8 @@ character = "explorer"
 background = "example-game/assets/garden.jpg"
 text = "在一個隱蔽的噴泉後面，我找到了古老的鑰匙"
 options = [
-  { text = "拿起鑰匙", inventory_add = "ancient-key", next = "to_vault" },
-  { text = "離開古堡", next = "last_scene" }
+  { text = "拿起鑰匙，去往地下寶庫", inventory_add = "ancient-key", next = "to_vault" },
+  { text = "離開古堡，結束探險", next = "last_scene" }
 ]
 
 [dialogue.explore_garden]
@@ -176,7 +176,7 @@ background = "example-game/assets/garden.jpg"
 text = "我知道你在尋找什麼這把古老的鑰匙將會幫助你"
 options = [
   { text = "感謝萊娜並前往地下寶庫", inventory_add = "ancient-key", next = "to_vault" },
-  { text = "離開花園", next = "leave_garden" }
+  { text = "離開花園，去往下一個地方", next = "to_vault" }
 ]
 
 [dialogue.last_scene]
@@ -193,8 +193,8 @@ character = "explorer"
 text = "我用鑰匙打開了地下寶庫的大門，裡面有寶石和金幣。"
 background = "example-game/assets/vault.jpg"
 options = [
-  { text = "收集寶藏", next = "treasure" },
-  { text = "離開古堡", next = "last_scene" }
+  { text = "收集所有寶石和金幣", next = "treasure" },
+  { text = "離開古堡，結束探險", next = "last_scene" }
 ]
 
 [dialogue.treasure]
@@ -202,8 +202,8 @@ character = "explorer"
 text = "我收集了一些寶藏，準備帶回家。"
 background = "example-game/assets/vault.jpg"
 options = [
-  { text = "看看附近", next = "leave" },
-  { text = "直接離開", next = "leave" }
+  { text = "看看附近還有什麼", next = "leave" },
+  { text = "直接離開，去往下一個地點", next = "leave" }
 ]
 
 [dialogue.leave]
@@ -211,8 +211,8 @@ character = "explorer"
 text = "我離開了地下寶庫。"
 background = "example-game/assets/garden.jpg"
 options = [
-  { text = "回圖書館", next = "library" },
-  { text = "直接回家", next = "last_scene" }
+  { text = "回圖書館，探索更多", next = "library" },
+  { text = "直接回家，結束探險", next = "last_scene" }
 ]
 
 [dialogue.library]
@@ -220,8 +220,8 @@ character = "explorer"
 text = "要回到圖書館探索更多祕密，須繳回全數寶藏。"
 background = "example-game/assets/garden.jpg"
 options = [
-  { text = "繳回寶藏", next = "last_scene" },
-  { text = "直接回家", next = "last_scene" }
+  { text = "繳回寶藏，結束探險", next = "last_scene" },
+  { text = "直接回家，結束探險", next = "last_scene" }
 ]
 
 [dialogue.end1]
@@ -242,15 +242,6 @@ options = [
   { text = "遊戲結束",}
 ]
 
-
-[dialogue.near]
-character = "explorer"
-text = "那裡有一個奇怪的東西，像是機關。"
-background = "example-game/assets/vault.jpg"
-options = [
-  { text = "啟動機關", next = "open" },
-  { text = "直接離開", next = "leave" }
-]
 
 [dialogue.open]
 character = "explorer"
