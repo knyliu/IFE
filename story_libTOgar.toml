@@ -162,7 +162,7 @@ options = [
 [dialogue.lena_help]
 character = "lena"
 background = "garden.jpg"
-text = "我知道你在尋找什麼這把古老的鑰匙將會幫助你"
+text = "我知道你在尋找什麼。這把古老的鑰匙將會幫助你"
 options = [
   { text = "感謝萊娜並前往地下寶庫", inventory_add = "ancientkey", next = "to_vault", affinity_change = 10 },
   { text = "離開花園", next = "leave_garden", affinity_change = 0 }
@@ -192,5 +192,5 @@ character = "explorer"
 background = "garden.jpg"
 text = "你繼續在花園裡探索，但似乎沒有更多的線索了。"
 options = [
-  { text = "返回圖書館", next = "library", affinity_change = -10 }
+  { text = "返回去尋求幫助", next = "lena_help", affinity_change = -10 }
 ]
