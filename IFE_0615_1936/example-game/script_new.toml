@@ -10,6 +10,14 @@ background = "example-game/assets/garden.jpg"
 name = "vault"
 background = "example-game/assets/vault.jpg"
 
+[scene.treasure-home]
+name = "home"
+background = "example-game/assets/home.jpg"
+
+[scene.treasure-vault2]
+name = "vault2"
+background = "example-game/assets/vault2.jpg"
+
 [character.explorer]
 name = "explorer"
 avatar = "example-game/assets/player_happy.png"
@@ -87,7 +95,7 @@ background = "example-game/assets/library.jpg"
 text = "這裡有一本看起來分常神秘的古書籍!又藏在圖書館深處，想必它正是我要找的解密書"
 options = [
   { text = "拿起解密書！", inventory_add = "decryption-book", next = "return_to_iris" },
-  { next = "last_scene"}
+  { text = "離開古堡", next = "last_scene" }
 ]
 
 [dialogue.return_to_iris]
@@ -96,7 +104,7 @@ background = "example-game/assets/library.jpg"
 text = "現在去找艾瑞斯吧!"
 options = [
   { text = "向艾瑞斯展示解密書", next = "show_book_to_iris" },
-  { next = "last_scene"}
+  { text = "離開古堡", next = "last_scene" }
 ]
 
 [dialogue.show_book_to_iris]
@@ -123,7 +131,7 @@ background = "example-game/assets/library.jpg"
 text = "圖書館裡的每一個角落都充滿了神秘，但現在似乎沒有更多的線索了"
 options = [
   { text = "前往秘密花園", next = "garden_arrival" },
-  { next = "last_scene"}
+  { text = "離開古堡", next = "last_scene" }
 ]
 
 [dialogue.garden_arrival]
@@ -141,7 +149,7 @@ background = "example-game/assets/garden.jpg"
 text = "在一個隱蔽的噴泉後面，我找到了古老的鑰匙"
 options = [
   { text = "拿起鑰匙", inventory_add = "ancient-key", next = "to_vault" },
-  { next = "last_scene"}
+  { text = "離開古堡", next = "last_scene" }
 ]
 
 [dialogue.explore_garden]
@@ -171,13 +179,22 @@ options = [
   { text = "離開花園", next = "leave_garden" }
 ]
 
+[dialogue.last_scene]
+text = "This is the end of the game."
+character = "Old Wise Man"
+scene = "Library"
+options = [
+    {text = "End the game", next = ""},
+    {text = "Continue to next game", next = "game2", is_final = true}
+]
+
 [dialogue.to_vault]
 character = "explorer"
 text = "我用鑰匙打開了地下寶庫的大門，裡面有寶石和金幣。"
 background = "example-game/assets/vault.jpg"
 options = [
   { text = "收集寶藏", next = "treasure" },
-  { next = "last_scene"}
+  { text = "離開古堡", next = "last_scene" }
 ]
 
 [dialogue.treasure]
@@ -195,7 +212,7 @@ text = "我離開了地下寶庫。"
 background = "example-game/assets/garden.jpg"
 options = [
   { text = "回圖書館", next = "library" },
-  { text = "直接回家", next = "home" }
+  { text = "直接回家", next = "last_scene" }
 ]
 
 [dialogue.library]
@@ -203,17 +220,17 @@ character = "explorer"
 text = "要回到圖書館探索更多祕密，須繳回全數寶藏。"
 background = "example-game/assets/garden.jpg"
 options = [
-  { text = "繳回寶藏", next = "end1" },
-  { text = "直接回家", next = "home" }
+  { text = "繳回寶藏", next = "last_scene" },
+  { text = "直接回家", next = "last_scene" }
 ]
 
 [dialogue.end1]
 character = "explorer"
 text = "為了知曉更多祕密，我願意放棄一切財產。"
-background = "example-game/assets/library.jpg"
+background = "example-game/assets/garden.jpg"
 options = [
-  { text = "第一世界結束", next = "last_scene"},
-  { text = "第一世界結束", next = "last_scene"}
+  { text = "遊戲結束",},
+  { text = "遊戲結束",}
 ]
 
 [dialogue.end2]
@@ -221,8 +238,8 @@ character = "explorer"
 text = "這次探險刺激又有趣，我成功帶回了寶藏。"
 background = "example-game/assets/home.jpg"
 options = [
-  { text = "第一世界結束", next = "last_scene"},
-  { text = "第一世界結束", next = "last_scene"}
+  { text = "遊戲結束",},
+  { text = "遊戲結束",}
 ]
 
 
@@ -241,16 +258,16 @@ text = "機關啟動，出口的門關了起來。需要解開謎題才能開門
 background = "example-game/assets/vault.jpg"
 options = [
   { text = "  50  ", next = "yes" },
-  { text = "  55  ", next = "end3" }
+  { text = "  55  ", next = "last_scene" }
 ]
 
 [dialogue.end3]
 character = "explorer"
 text = "我選擇觸碰機關，卻因解不開謎題被困在這裡直至死去。"
-background = "example-game/assets/home.jpg"
+background = "example-game/assets/vault.jpg"
 options = [
-  { text = "第一世界結束", next = "last_scene"},
-  { text = "第一世界結束", next = "last_scene"}
+  { text = "遊戲結束",},
+  { text = "遊戲結束",}
 ]
 
 
@@ -269,14 +286,5 @@ text = "隱藏的寶庫有更多寶石和金幣，我收集好後準備帶回家
 background = "example-game/assets/secret2.jpg"
 options = [
  { text = "直接離開", next = "leave" },
-  { next = "last_scene"}
-]
-
-[dialogue.last_scene]
-text = "This is the end of the game."
-character = "Old Wise Man"
-scene = "Library"
-options = [
-    {text = "End the game", next = ""},
-    {text = "Continue to next game", next = "game2", is_final = true}
+ { text = "離開古堡", next = "last_scene" }
 ]
