@@ -6,6 +6,7 @@
   * SDL2_image
   * SDL2_ttf
   * curl
+  * toml
 * 安裝指南（如果你沒有以上必要函式庫）
   * 在Ubuntu上可以使用以下指令安裝必要的函式庫：
     ```
