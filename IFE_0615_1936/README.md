@@ -13,6 +13,16 @@
     sudo apt-get update
     sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libcurl4-gnutls-dev
     ```
+  * 在Ubuntu上安裝 `tomlc99` ：
+    * 你可以從 GitHub 下載原始碼    
+    ```
+     git clone https://github.com/cktan/tomlc99.git
+    ```
+    * 進入下載的目錄並編譯
+    ```
+     cd tomlc99
+     make
+    ```
 
 ## 如何編譯這份程式碼
 * 在終端機輸入：
