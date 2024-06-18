@@ -1,5 +1,13 @@
 # IFE
 
+## Our Slides
+[canva.com](https://www.canva.com/design/DAGIT2k3KIk/vomFV-BWIwb_VRdvl8mspA/view?utm_content=DAGIT2k3KIk&utm_campaign=designshare&utm_medium=link&utm_source=editor)
+https://bit.ly/3VAMLI6
+
+## Our Demo Video
+[drive.google.com](https://drive.google.com/file/d/1by73EK_mcVsWSBAP6-UXjEMfQHOAoVLq/view?usp=drive_link)
+https://bit.ly/3KLYjD5
+
 ## For merge.c
 ```gcc -o merge merge.c toml.c -lSDL2 -lSDL2_image -lSDL2_ttf -lcjson -lcurl```
 ### Code Explanation
