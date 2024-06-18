@@ -1,0 +1,306 @@
+[scene.library]
+name = "library"
+background = "example-game/assets/library.jpg"
+
+[scene.secret-garden]
+name = "secret-garden"
+background = "example-game/assets/garden.jpg"
+
+[scene.treasure-vault]
+name = "vault"
+background = "example-game/assets/vault.jpg"
+
+[scene.treasure-home]
+name = "home"
+background = "example-game/assets/home.jpg"
+
+[scene.treasure-vault2]
+name = "vault2"
+background = "example-game/assets/secret2.jpg"
+
+[character.explorer]
+name = "explorer"
+avatar = "example-game/assets/player_happy.png"
+tachie = "example-game/assets/player_terrified.png"
+
+[character.iris]
+name = "iris"
+avatar = "example-game/assets/iris.png"
+tachie = "example-game/assets/iris.png"
+
+[character.lena]
+name = "lena"
+avatar = "example-game/assets/girl.png"
+tachie = "example-game/assets/girl.png"
+
+[item.ancient-key]
+name = "ancient-key"
+description = "鑰匙：可以開啟地下寶庫"
+icon = "example-game/assets/key.png"
+
+[item.decryption-book]
+name = "decryption-book"
+description = "解密書：含有解開秘密的線索"
+icon = "example-game/assets/book.png"
+
+[dialogue.initial_meeting]
+character = "explorer"
+text = "這裡就是傳說中的圖書館! 聽說這隱藏著通往寶藏所在處的秘密，我一定要解開謎題帶著寶物回家!"
+background = "example-game/assets/library.jpg"
+options = [
+  { text = "咦? 那裏有個人", next = "find_iris", affinity_change = 0 },
+  { text = "在圖書館四處探索", next = "explore_library", affinity_change = -20 }
+]
+
+
+[dialogue.find_iris]
+character = "explorer"
+background = "example-game/assets/library.jpg"
+text = "難道就是傳說中的館長艾瑞斯嗎?"
+options = [
+  { text = "尋找艾瑞斯並詢問關於寶藏的信息", next = "iris_intro", affinity_change = 10 },
+  { text = "在圖書館四處探索", next = "explore_library", affinity_change = -10 }
+]
+
+[dialogue.explore_library]
+character = "explorer"
+background = "example-game/assets/library.jpg"
+text = "這裡被整理得很乾淨，想必一定是館長艾瑞斯的用心吧！"
+options = [
+  { text = "回頭去找艾瑞斯問問看吧", next = "iris_help", affinity_change = 10 },
+  { text = "我還是比較相信我自己！", next = "explore_myself", affinity_change = 20 }
+]
+
+[dialogue.explore_myself]
+character = "explorer"
+background = "example-game/assets/library.jpg"
+text = "欸！怎麼有個地方看起來特別昏暗，難道這就是我要找的東西嗎"
+options = [
+  { text = "過去看看", next = "find_book", affinity_change = 10 },
+  { text = "回頭去找艾瑞斯問問看吧", next = "iris_help", affinity_change = 20 }
+]
+
+[dialogue.iris_intro]
+character = "iris"
+background = "example-game/assets/library.jpg"
+text = "你一看就是來尋找寶藏的人，通往寶藏之路充滿險境，許多人都無功而返，即便如此你還是願意前往嗎?"
+options = [
+  { text = "當然!我準備好了，請告訴我更多訊息", next = "iris_help", affinity_change = 10 },
+  { text = "我只是來看看", next = "explore_library", affinity_change = 0 }
+]
+
+[dialogue.iris_help]
+character = "iris"
+background = "example-game/assets/library.jpg"
+text = "好吧，如果你真的準備好了，你需要先找到古老的解密書它藏在圖書館的某處"
+options = [
+  { text = "尋找解密書", next = "find_book", affinity_change = -20 },
+  { text = "請你直接告訴我答案吧", next = "iris_re_help", affinity_change = -20 }
+]
+
+[dialogue.iris_re_help]
+character = "iris"
+background = "library.jpg"
+text = "請出去"
+options = [
+  { text = "好吧我找就是了", next = "find_book", affinity_change = -10 },
+  { text = "離開古堡，結束探險", next = "last_scene",  affinity_change = 0 }
+]
+
+[dialogue.find_book]
+character = "explorer"
+background = "example-game/assets/library.jpg"
+text = "這裡有一本看起來分常神秘的古書籍!又藏在圖書館深處，想必它正是我要找的解密書"
+options = [
+  { text = "拿起解密書！", next = "return_to_iris", affinity_change = 20 },
+  { text = "離開古堡，結束探險", next = "last_scene", affinity_change = 0 }
+]
+
+[dialogue.return_to_iris]
+character = "explorer"
+background = "example-game/assets/library.jpg"
+text = "現在去找艾瑞斯吧!"
+options = [
+  { text = "向艾瑞斯展示解密書", inventory_add = "decryptionbook", next = "show_book_to_iris", affinity_change = 0 },
+  { text = "離開古堡，結束探險", next = "last_scene", affinity_change = 0 }
+]
+
+[dialogue.show_book_to_iris]
+character = "iris"
+background = "example-game/assets/library.jpg"
+text = "這就是那本書！現在，你可以前往秘密花園，找到古老的鑰匙"
+options = [
+  { text = "拿起解密書並前往秘密花園", next = "garden_arrival", affinity_change = 10 },
+  { text = "先不前往，待在圖書館", next = "stay_in_library", affinity_change = 0 }
+]
+
+[dialogue.stay_in_library]
+character = "explorer"
+background = "example-game/assets/library.jpg"
+text = "我決定先在圖書館再探索一會兒，也許還會發現其他有用的線索"
+options = [
+  { text = "繼續探索圖書館", next = "explore_library_more", affinity_change = 0 },
+  { text = "現在前往秘密花園", next = "garden_arrival", affinity_change = 10 }
+]
+
+[dialogue.explore_library_more]
+character = "explorer"
+background = "example-game/assets/library.jpg"
+text = "圖書館裡的每一個角落都充滿了神秘，但現在似乎沒有更多的線索了"
+options = [
+  { text = "前往秘密花園", next = "garden_arrival", affinity_change = 10 },
+  { text = "離開古堡，結束探險", next = "last_scene",  affinity_change = 0 }
+]
+
+[dialogue.garden_arrival]
+character = "explorer"
+background = "example-game/assets/garden.jpg"
+text = "秘密花園是個迷人的地方，充滿了奇異的花草和迷宮般的小徑"
+options = [
+  { text = "探索花園", next = "explore_garden", affinity_change = 10 },
+  { text = "尋找古老的鑰匙", next = "explore_garden", affinity_change = 20 }
+]
+
+[dialogue.find_key]
+character = "explorer"
+background = "example-game/assets/garden.jpg"
+text = "在一個隱蔽的噴泉後面，我找到了古老的鑰匙"
+options = [
+  { text = "拿起鑰匙，去往地下寶庫", inventory_add = "ancient-key", next = "to_vault", affinity_change = 0 },
+  { text = "離開古堡，結束探險", next = "last_scene", affinity_change = 10 }
+]
+
+[dialogue.explore_garden]
+character = "explorer"
+background = "example-game/assets/garden.jpg"
+text = "花園裡的每一個轉角都充滿了神秘突然，一位名叫萊娜的守護者出現了"
+options = [
+  { text = "與萊娜交談", next = "lena_intro", affinity_change = 40 },
+  { text = "繼續探索花園", next = "explore_garden_more", affinity_change = -20 }
+]
+
+[dialogue.lena_intro]
+character = "lena"
+background = "example-game/assets/garden.jpg"
+text = "你好，探險家你在這裡尋找什麼？"
+options = [
+  { text = "告訴萊娜關於寶藏的事", next = "lena_help", affinity_change = 0 },
+  { text = "隱瞞你的目的", next = "lena_suspect", affinity_change = -20 }
+]
+
+[dialogue.lena_help]
+character = "lena"
+background = "example-game/assets/garden.jpg"
+text = "我知道你在尋找什麼這把古老的鑰匙將會幫助你"
+options = [
+  { text = "感謝萊娜並前往拿鑰匙", next = "find_key", affinity_change = 10 },
+  { text = "太棒了！", next = "find_key", affinity_change = 0 }
+]
+
+[dialogue.lena_suspect]
+character = "lena"
+background = "example-game/assets/garden.jpg"
+text = "隱瞞目的會引起萊娜的懷疑，她可能不願意幫助你。"
+options = [
+  { text = "告訴她真相", next = "lena_help", affinity_change = 10 },
+  { text = "繼續隱瞞，我還是想靠自己", next = "find_key", affinity_change = -20 }
+]
+
+[dialogue.find_key]
+character = "explorer"
+background = "example-game/assets/garden.jpg"
+text = "在一個隱蔽的噴泉後面，我找到了古老的鑰匙!"
+options = [
+  { text = "拿起鑰匙", next = "lena_bye", affinity_change = 0 },
+  { text = "離開古堡，結束探險", next = "last_scene", affinity_change = 0 }
+]
+
+[dialogue.lena_bye]
+character = "lena"
+background = "example-game/assets/garden.jpg"
+text = "恭喜你。你現在可以拿著鑰匙到下一個地點尋找寶物了"
+options = [
+  { text = "太棒了！謝謝你", next = "to_vault", inventory_add = "ancientkey", affinity_change = 10 },
+  { text = "離開古堡，結束探險", next = "last_scene", affinity_change = 0 }
+]
+
+[dialogue.explore_garden_more]
+character = "explorer"
+background = "example-game/assets/garden.jpg"
+text = "你繼續在花園裡探索，但似乎沒有更多的線索了。"
+options = [
+  { text = "返回去尋求幫助", next = "lena_help", affinity_change = -10 },
+  { text = "離開古堡，結束探險", next = "last_scene", affinity_change = 0 }
+]
+
+[dialogue.last_scene]
+text = "This is the end of the game."
+character = "Old Wise Man"
+scene = "Library"
+options = [
+    {text = "End the game", next = "", affinity_change = 0 },
+    {text = "Continue to next game", next = "game2", is_final = true, affinity_change = 0 }
+]
+
+[dialogue.to_vault]
+character = "explorer"
+text = "我用鑰匙打開了地下寶庫的大門，裡面有寶石和金幣。"
+background = "example-game/assets/vault.jpg"
+options = [
+  { text = "收集所有寶石和金幣", next = "treasure", affinity_change = 100 },
+  { text = "離開古堡，結束探險", next = "last_scene", affinity_change = 100 }
+]
+
+[dialogue.treasure]
+character = "explorer"
+text = "我收集了一些寶藏，準備帶回家。"
+background = "example-game/assets/vault.jpg"
+options = [
+  { text = "看看附近還有什麼", next = "leave", affinity_change = 100 },
+  { text = "直接離開，去往下一個地點", next = "leave", affinity_change = 100 }
+]
+
+[dialogue.leave]
+character = "explorer"
+text = "我離開了地下寶庫。"
+background = "example-game/assets/garden.jpg"
+options = [
+  { text = "回圖書館，探索更多", next = "library", affinity_change = 100 },
+  { text = "直接回家，結束探險", next = "last_scene", affinity_change = 100 }
+]
+
+[dialogue.library]
+character = "explorer"
+text = "要回到圖書館探索更多祕密，須繳回全數寶藏。"
+background = "example-game/assets/garden.jpg"
+options = [
+  { text = "繳回寶藏，結束探險", next = "last_scene", affinity_change = 100 },
+  { text = "直接回家，結束探險", next = "last_scene", affinity_change = 100 }
+]
+
+[dialogue.open]
+character = "explorer"
+text = "機關啟動，出口的門關了起來。需要解開謎題才能開門。請問五年後60歲，五年前幾歲？"
+background = "example-game/assets/vault.jpg"
+options = [
+  { text = "  50  ", next = "yes", affinity_change = 100 },
+  { text = "  55  ", next = "last_scene", affinity_change = 100 }
+]
+
+[dialogue.yes]
+character = "explorer"
+text = "我成功解開謎題，大門打開，這時旁邊一道暗門也打開了。"
+background = "example-game/assets/vault.jpg"
+options = [
+  { text = "進入暗門", next = "enter", affinity_change = 100 },
+  { text = "直接離開", next = "leave", affinity_change = 100 }
+]
+
+[dialogue.enter]
+character = "explorer"
+text = "隱藏的寶庫有更多寶石和金幣，我收集好後準備帶回家。"
+background = "example-game/assets/secret2.jpg"
+options = [
+ { text = "直接離開", next = "leave", affinity_change = 100 },
+ { text = "離開古堡", next = "last_scene", affinity_change = 100 }
+]
